@@ -9,10 +9,10 @@ on:
         default: 'x86_64'
         type: choice
         options:
-        - x86_64
-        - x86
-        - arm64-v8a
-        - armaebi-v7a
+          - x86_64
+          - x86
+          - arm64-v8a
+          - armaebi-v7a
 
 permissions:
   contents: write
@@ -21,35 +21,50 @@ jobs:
   build:
     if: github.event.repository.owner.id == github.event.sender.id
     runs-on: ubuntu-latest
+
     steps:
- 
-    - name: Check Out
-      uses: actions/checkout@v3.1.0
-      
-    - name: Operating System Information
-      run: |
-        uname -a
-        
-    - name: Patch File Information
-      run: |
-        file ${{ github.event.inputs.ARCHITECTURE }}/vbmeta-disable-verification
-        
-    - name: Give Permissio and Run Patch
-      run: |
-        chmod +x ${{ github.event.inputs.ARCHITECTURE }}/vbmeta-disable-verification
-        ./${{ github.event.inputs.ARCHITECTURE }}/vbmeta-disable-verification vbmeta.img
-    - name: Upload to Release
-      uses: ncipollo/release-action@v1.12.0
-      with:
-        artifacts: vbmeta.img
-        Name: Patched VBMeta
-        draft: false
-        prerelease: true
-        tag: ${{ github.run_id }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-        body: |
-          Your vbmeta image are now ready!
-          Flash it now.
-    - name: Link to Release
-      run: |
-        echo "https://github.com/${GITHUB_REPOSITORY}/releases/tag/${{ github.run_id }}"
+      - name: Check Out
+        uses: actions/checkout@v3.1.0
+
+      - name: Operating System Information
+        run: uname -a
+
+      - name: Patch File Information
+        run: file ${{ github.event.inputs.ARCHITECTURE }}/vbmeta-disable-verification
+
+      - name: Give Permission and Run Patch
+        run: |
+          chmod +x ${{ github.event.inputs.ARCHITECTURE }}/vbmeta-disable-verification
+          ./${{ github.event.inputs.ARCHITECTURE }}/vbmeta-disable-verification vbmeta.img
+
+      - name: Rename patched vbmeta
+        run: mv vbmeta.img vbmeta-patched.img
+
+      - name: Create zip
+        run: zip vbmeta-patched.zip vbmeta-patched.img
+
+      - name: Upload to Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          artifacts: vbmeta-patched.zip
+          name: Patched VBMeta
+          draft: false
+          prerelease: true
+          tag: ${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            ✅ Tu imagen `vbmeta` fue parcheada correctamente.
+
+            📦 Archivo: `vbmeta-patched.zip`
+            🧩 Contiene: `vbmeta-patched.img`
+
+            🧪 Puedes flashearla así:
+
+            ```
+            fastboot flash vbmeta vbmeta-patched.img
+            ```
+
+      - name: Link to Release
+        run: |
+          echo "🔗 Release disponible en:"
+          echo "https://github.com/${GITHUB_REPOSITORY}/releases/tag/${{ github.run_id }}"

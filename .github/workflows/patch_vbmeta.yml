@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: pip install click
 
-      - name: Patch vbmeta.img
+      - name: Download script and patch vbmeta
         run: |
           curl -O https://raw.githubusercontent.com/libxzr/vbmeta-disable-verification/main/vbmeta-disable-verification.py
           python3 vbmeta-disable-verification.py vbmeta.img vbmeta-patched.img

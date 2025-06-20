@@ -29,8 +29,11 @@ jobs:
           curl -O https://raw.githubusercontent.com/libxzr/vbmeta-disable-verification/main/vbmeta-disable-verification.py
           python3 vbmeta-disable-verification.py vbmeta.img vbmeta-patched.img
 
-      - name: Upload patched vbmeta
+      - name: Zip patched vbmeta
+        run: zip vbmeta-patched.zip vbmeta-patched.img
+
+      - name: Upload patched vbmeta zip
         uses: actions/upload-artifact@v4
         with:
           name: vbmeta-patched
-          path: vbmeta-patched.img
+          path: vbmeta-patched.zip
